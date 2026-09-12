@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,8 +26,11 @@ export default function AdminLoginPage() {
       setError("Invalid email or password.");
       return;
     }
-    router.push("/admin");
-    router.refresh();
+    // A hard navigation (not router.push) is required here: the nav links
+    // on this page prefetch /admin/* while logged out, and Next.js's client
+    // router cache can replay that stale unauthenticated redirect instead of
+    // fetching the now-authenticated page.
+    window.location.href = "/admin";
   }
 
   return (

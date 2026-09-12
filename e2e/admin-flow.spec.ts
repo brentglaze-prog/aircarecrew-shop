@@ -20,6 +20,11 @@ test.describe("Admin management flow", () => {
     const suffix = Date.now();
 
     await page.goto("/admin/login");
+    // The sign-in button is enabled in the server-rendered HTML before React
+    // hydrates and attaches the submit handler; without this, a fast
+    // automated click can land before hydration and fall through to a
+    // native (unhandled) form submission instead of the client-side sign-in.
+    await page.waitForLoadState("networkidle");
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Password").fill(password);
     await page.getByRole("button", { name: /sign in/i }).click();
