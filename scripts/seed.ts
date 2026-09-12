@@ -10,8 +10,10 @@
  *
  * Safe to re-run: uses upsert on slug/sku so it won't create duplicates.
  */
-import "dotenv/config";
+import { config } from "dotenv";
 import { createClient } from "@supabase/supabase-js";
+
+config({ path: ".env.local" });
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
