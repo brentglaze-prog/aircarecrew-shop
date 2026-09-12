@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-offwhite text-graphite-950 antialiased;
+}
+
+/* Visible focus ring everywhere, including custom controls — WCAG 2.2 AA */
+:focus-visible {
+  outline: 2px solid theme("colors.amber.500");
+  outline-offset: 2px;
+}
+
+.skip-link {
+  @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded focus:bg-graphite-950 focus:px-4 focus:py-2 focus:text-offwhite;
+}
+
+.container-page {
+  @apply mx-auto w-full max-w-8xl px-4 sm:px-6 lg:px-8;
+}
+
+.btn {
+  @apply inline-flex min-h-[44px] items-center justify-center rounded-md px-5 py-3 text-sm font-semibold tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.btn-primary {
+  @apply btn bg-graphite-950 text-offwhite hover:bg-graphite-800;
+}
+
+.btn-secondary {
+  @apply btn border border-graphite-950/20 bg-transparent text-graphite-950 hover:bg-graphite-950/5;
+}
+
+.btn-amber {
+  @apply btn bg-amber-500 text-graphite-950 hover:bg-amber-400;
+}
+
+.admin-input {
+  @apply min-h-[44px] rounded-md border border-graphite-950/20 bg-white px-3 py-2 text-sm font-normal text-graphite-950;
+}
+
+.admin-table th {
+  @apply p-3 text-left text-xs font-semibold uppercase tracking-wide text-graphite-600;
+}
+
+.admin-table td {
+  @apply p-3 align-middle;
+}
