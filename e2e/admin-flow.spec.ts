@@ -48,9 +48,13 @@ test.describe("Admin management flow", () => {
     await page.getByRole("button", { name: /save product/i }).click();
     await expect(page).toHaveURL(/\/admin\/products\//);
 
-    // Verify it appears on the storefront
-    await page.goto(`/product/test-product-${suffix}`);
-    await expect(page.getByRole("heading", { name: `Test Product ${suffix}` })).toBeVisible();
+    // Verify it appears on the storefront. Cache invalidation from
+    // revalidatePath can lag the CDN edge by a couple of seconds, so retry
+    // rather than treating the first miss as a failure.
+    await expect(async () => {
+      await page.goto(`/product/test-product-${suffix}`);
+      await expect(page.getByRole("heading", { name: `Test Product ${suffix}` })).toBeVisible();
+    }).toPass({ timeout: 15_000 });
     await expect(page.getByRole("button", { name: /add to cart/i })).toBeEnabled();
   });
 });
