@@ -17,7 +17,7 @@ body {
 
 /* Visible focus ring everywhere, including custom controls — WCAG 2.2 AA */
 :focus-visible {
-  outline: 2px solid theme("colors.violet.400");
+  outline: 2px solid theme("colors.careblue.600");
   outline-offset: 2px;
 }
 
