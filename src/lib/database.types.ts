@@ -76,6 +76,10 @@ export type Database = {
           product_name: string
           quantity: number
           sku: string | null
+          supplier_fulfillment_status: string
+          supplier_order_number: string | null
+          supplier_ordered_at: string | null
+          supplier_tracking_number: string | null
           unit_price_cents: number
           variant_id: string | null
           variant_label: string | null
@@ -89,6 +93,10 @@ export type Database = {
           product_name: string
           quantity: number
           sku?: string | null
+          supplier_fulfillment_status?: string
+          supplier_order_number?: string | null
+          supplier_ordered_at?: string | null
+          supplier_tracking_number?: string | null
           unit_price_cents: number
           variant_id?: string | null
           variant_label?: string | null
@@ -102,6 +110,10 @@ export type Database = {
           product_name?: string
           quantity?: number
           sku?: string | null
+          supplier_fulfillment_status?: string
+          supplier_order_number?: string | null
+          supplier_ordered_at?: string | null
+          supplier_tracking_number?: string | null
           unit_price_cents?: number
           variant_id?: string | null
           variant_label?: string | null
@@ -240,11 +252,16 @@ export type Database = {
           created_at: string
           display_order: number
           id: string
+          inventory_mode: string
           inventory_quantity: number
           is_active: boolean
+          max_order_quantity: number
           product_id: string
           size: string | null
           sku: string
+          supplier_checked_at: string | null
+          supplier_status: string
+          supplier_verified_until: string | null
           updated_at: string
         }
         Insert: {
@@ -252,11 +269,16 @@ export type Database = {
           created_at?: string
           display_order?: number
           id?: string
+          inventory_mode?: string
           inventory_quantity?: number
           is_active?: boolean
+          max_order_quantity?: number
           product_id: string
           size?: string | null
           sku: string
+          supplier_checked_at?: string | null
+          supplier_status?: string
+          supplier_verified_until?: string | null
           updated_at?: string
         }
         Update: {
@@ -264,11 +286,16 @@ export type Database = {
           created_at?: string
           display_order?: number
           id?: string
+          inventory_mode?: string
           inventory_quantity?: number
           is_active?: boolean
+          max_order_quantity?: number
           product_id?: string
           size?: string | null
           sku?: string
+          supplier_checked_at?: string | null
+          supplier_status?: string
+          supplier_verified_until?: string | null
           updated_at?: string
         }
         Relationships: [
