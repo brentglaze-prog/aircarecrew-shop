@@ -12,12 +12,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Authentication entry points must remain public. The actual reset-password
-  // page is intentionally NOT exempt: the recovery callback must establish a
-  // valid admin session before a password can be changed.
+  // Authentication entry points remain public. reset-password performs its
+  // own recovery-session + admin verification in the browser because recovery
+  // is intentionally isolated from the app's normal SSR/PKCE session flow.
   if (
     request.nextUrl.pathname === "/admin/login" ||
-    request.nextUrl.pathname === "/admin/forgot-password"
+    request.nextUrl.pathname === "/admin/forgot-password" ||
+    request.nextUrl.pathname === "/admin/reset-password"
   ) {
     return NextResponse.next();
   }
