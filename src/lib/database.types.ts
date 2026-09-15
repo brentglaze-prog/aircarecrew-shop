@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -7,8 +7,6 @@
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
@@ -278,6 +276,41 @@ export type Database = {
             foreignKeyName: "product_variants_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_vendor_links: {
+        Row: {
+          notes: string | null
+          product_id: string
+          updated_at: string
+          vendor_name: string | null
+          vendor_product_url: string | null
+          vendor_sku: string | null
+        }
+        Insert: {
+          notes?: string | null
+          product_id: string
+          updated_at?: string
+          vendor_name?: string | null
+          vendor_product_url?: string | null
+          vendor_sku?: string | null
+        }
+        Update: {
+          notes?: string | null
+          product_id?: string
+          updated_at?: string
+          vendor_name?: string | null
+          vendor_product_url?: string | null
+          vendor_sku?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_vendor_links_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
