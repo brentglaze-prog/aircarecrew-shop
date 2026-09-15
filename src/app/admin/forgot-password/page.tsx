@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { PRODUCTION_SITE_URL } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AdminForgotPasswordPage() {
@@ -17,7 +18,7 @@ export default function AdminForgotPasswordPage() {
     setMessage(null);
 
     const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback?next=/admin/reset-password`;
+    const redirectTo = `${PRODUCTION_SITE_URL}/auth/callback`;
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
 
     setLoading(false);
