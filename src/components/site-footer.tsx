@@ -15,7 +15,7 @@ export function SiteFooter({
       <div className="container-page grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="font-display text-lg font-bold tracking-tight">
-            AirCare<span className="text-amber-500">Crew</span>.shop
+            AirCare<span className="text-violet-300">Crew</span>.shop
           </p>
           <p className="mt-3 text-sm text-graphite-600">Gear for the crew.</p>
         </div>
@@ -24,13 +24,13 @@ export function SiteFooter({
           <h2 className="text-sm font-semibold uppercase tracking-wide text-graphite-600">Shop</h2>
           <ul className="mt-3 space-y-2 text-sm">
             <li>
-              <Link href="/shop" className="hover:text-amber-400">
+              <Link href="/shop" className="hover:text-violet-200">
                 All Products
               </Link>
             </li>
             {categories.map((c) => (
               <li key={c.id}>
-                <Link href={`/shop/${c.slug}`} className="hover:text-amber-400">
+                <Link href={`/shop/${c.slug}`} className="hover:text-violet-200">
                   {c.name}
                 </Link>
               </li>
@@ -42,17 +42,17 @@ export function SiteFooter({
           <h2 className="text-sm font-semibold uppercase tracking-wide text-graphite-600">Info</h2>
           <ul className="mt-3 space-y-2 text-sm">
             <li>
-              <Link href="/about" className="hover:text-amber-400">
+              <Link href="/about" className="hover:text-violet-200">
                 About
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="hover:text-amber-400">
+              <Link href="/contact" className="hover:text-violet-200">
                 Contact
               </Link>
             </li>
             <li>
-              <Link href="/shipping-returns" className="hover:text-amber-400">
+              <Link href="/shipping-returns" className="hover:text-violet-200">
                 Shipping &amp; Returns
               </Link>
             </li>
@@ -63,12 +63,12 @@ export function SiteFooter({
           <h2 className="text-sm font-semibold uppercase tracking-wide text-graphite-600">Legal</h2>
           <ul className="mt-3 space-y-2 text-sm">
             <li>
-              <Link href="/privacy" className="hover:text-amber-400">
+              <Link href="/privacy" className="hover:text-violet-200">
                 Privacy Policy
               </Link>
             </li>
             <li>
-              <Link href="/terms" className="hover:text-amber-400">
+              <Link href="/terms" className="hover:text-violet-200">
                 Terms of Service
               </Link>
             </li>
@@ -76,12 +76,12 @@ export function SiteFooter({
           {(social.instagram || social.facebook) && (
             <div className="mt-4 flex gap-4 text-sm">
               {social.instagram && (
-                <a href={social.instagram} className="hover:text-amber-400" rel="noreferrer" target="_blank">
+                <a href={social.instagram} className="hover:text-violet-200" rel="noreferrer" target="_blank">
                   Instagram
                 </a>
               )}
               {social.facebook && (
-                <a href={social.facebook} className="hover:text-amber-400" rel="noreferrer" target="_blank">
+                <a href={social.facebook} className="hover:text-violet-200" rel="noreferrer" target="_blank">
                   Facebook
                 </a>
               )}

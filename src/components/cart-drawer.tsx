@@ -92,7 +92,7 @@ export function CartDrawer() {
                       <Link
                         href={`/product/${item.productSlug}`}
                         onClick={closeCart}
-                        className="text-sm font-medium hover:text-amber-500"
+                        className="text-sm font-medium hover:text-violet-500"
                       >
                         {item.productName}
                       </Link>
@@ -139,7 +139,7 @@ export function CartDrawer() {
               <button
                 onClick={handleCheckout}
                 disabled={isCheckingOut}
-                className="btn-amber mt-4 w-full"
+                className="btn-violet mt-4 w-full"
               >
                 {isCheckingOut ? "Redirecting to checkout…" : "Checkout"}
               </button>

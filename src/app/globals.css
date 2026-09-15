@@ -17,7 +17,7 @@ body {
 
 /* Visible focus ring everywhere, including custom controls — WCAG 2.2 AA */
 :focus-visible {
-  outline: 2px solid theme("colors.amber.500");
+  outline: 2px solid theme("colors.violet.400");
   outline-offset: 2px;
 }
 
@@ -41,8 +41,8 @@ body {
   @apply btn border border-graphite-950/20 bg-transparent text-graphite-950 hover:bg-graphite-950/5;
 }
 
-.btn-amber {
-  @apply btn bg-amber-500 text-graphite-950 hover:bg-amber-400;
+.btn-violet {
+  @apply btn bg-violet-500 text-offwhite hover:bg-violet-400;
 }
 
 .admin-input {

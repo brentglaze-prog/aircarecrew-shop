@@ -15,12 +15,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <header className="bg-graphite-950 text-offwhite">
         <div className="container-page flex h-16 items-center justify-between">
           <Link href="/admin" className="font-display font-bold tracking-tight">
-            AirCareCrew<span className="text-amber-500">.</span> Admin
+            AirCareCrew<span className="text-violet-300">.</span> Admin
           </Link>
           <div className="flex items-center gap-6">
             <nav className="hidden gap-5 sm:flex">
               {NAV.map((item) => (
-                <Link key={item.href} href={item.href} className="text-sm font-medium hover:text-amber-400">
+                <Link key={item.href} href={item.href} className="text-sm font-medium hover:text-violet-200">
                   {item.label}
                 </Link>
               ))}
@@ -30,7 +30,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
         <nav className="container-page flex gap-4 overflow-x-auto pb-3 sm:hidden">
           {NAV.map((item) => (
-            <Link key={item.href} href={item.href} className="text-sm font-medium whitespace-nowrap hover:text-amber-400">
+            <Link key={item.href} href={item.href} className="text-sm font-medium whitespace-nowrap hover:text-violet-200">
               {item.label}
             </Link>
           ))}

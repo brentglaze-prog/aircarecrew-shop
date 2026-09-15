@@ -80,7 +80,7 @@ export default async function AdminOrderDetailPage({ params }: Props) {
         </div>
 
         {order.notes && (
-          <p className="mt-4 rounded-md bg-amber-500/10 p-3 text-sm text-graphite-950">{order.notes}</p>
+          <p className="mt-4 rounded-md bg-violet-500/10 p-3 text-sm text-graphite-950">{order.notes}</p>
         )}
       </div>
 

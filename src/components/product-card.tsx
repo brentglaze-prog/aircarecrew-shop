@@ -32,7 +32,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           </span>
         )}
         {!soldOut && product.compare_at_price_cents && product.compare_at_price_cents > product.price_cents && (
-          <span className="absolute left-3 top-3 rounded bg-amber-500 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-graphite-950">
+          <span className="absolute left-3 top-3 rounded bg-violet-500 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-offwhite">
             Sale
           </span>
         )}

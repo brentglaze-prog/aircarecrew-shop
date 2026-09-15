@@ -44,7 +44,7 @@ export function ProductImagesManager({ productId, images }: { productId: string;
             <div className="relative aspect-square overflow-hidden rounded bg-graphite-800/5">
               <Image src={img.url} alt={img.alt_text ?? ""} fill sizes="200px" className="object-cover" />
               {img.is_primary && (
-                <span className="absolute left-1 top-1 rounded bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-graphite-950">
+                <span className="absolute left-1 top-1 rounded bg-violet-500 px-1.5 py-0.5 text-[10px] font-semibold text-offwhite">
                   Primary
                 </span>
               )}

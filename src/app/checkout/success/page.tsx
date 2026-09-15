@@ -29,9 +29,9 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
   return (
     <div className="container-page flex min-h-[60vh] flex-col items-center justify-center py-16 text-center">
       <ClearCartOnSuccess />
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-500">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-violet-500">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M5 13l4 4L19 7" stroke="#111318" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M5 13l4 4L19 7" stroke="#f6f4ef" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
       <h1 className="mt-6 font-display text-2xl font-bold tracking-tight sm:text-3xl">Thank you for your order</h1>

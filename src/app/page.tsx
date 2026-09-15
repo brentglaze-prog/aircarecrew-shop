@@ -20,7 +20,7 @@ export default async function HomePage() {
             built for the job.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link href="/shop/shirts" className="btn-amber">
+            <Link href="/shop/shirts" className="btn-violet">
               Shop Shirts
             </Link>
             <Link

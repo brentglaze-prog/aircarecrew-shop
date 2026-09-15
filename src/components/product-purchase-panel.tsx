@@ -168,7 +168,7 @@ export function ProductPurchasePanel({ product }: { product: ProductWithRelation
           type="button"
           onClick={handleAddToCart}
           disabled={!selectedVariant || !inStock}
-          className="btn-amber flex-1"
+          className="btn-violet flex-1"
         >
           {justAdded ? "Added ✓" : inStock ? "Add to Cart" : "Sold Out"}
         </button>

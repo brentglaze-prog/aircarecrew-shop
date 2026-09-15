@@ -19,9 +19,11 @@ const config: Config = {
           700: "#163363",
         },
         offwhite: "#f6f4ef",
-        amber: {
-          500: "#f2a900",
-          400: "#f7b733",
+        violet: {
+          500: "#4e3b78",
+          400: "#6b58a0",
+          300: "#c9bfe8",
+          200: "#e3ddf5",
         },
       },
       fontFamily: {
