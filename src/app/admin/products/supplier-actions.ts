@@ -43,8 +43,7 @@ export async function setSupplierVariantAvailability(formData: FormData) {
   }
 
   const { db } = await getAdminContext();
-  const typedDb = db as any;
-  const { data: variant } = await typedDb
+  const { data: variant } = await db
     .from("product_variants")
     .select("id, product_id")
     .eq("id", variantId)
@@ -52,7 +51,7 @@ export async function setSupplierVariantAvailability(formData: FormData) {
     .maybeSingle();
   if (!variant) throw new Error("Variant not found.");
 
-  const { error } = await typedDb
+  const { error } = await db
     .from("product_variants")
     .update({
       inventory_mode: "supplier",
@@ -80,8 +79,7 @@ export async function bulkSetSupplierAvailability(formData: FormData) {
   }
 
   const { db } = await getAdminContext();
-  const typedDb = db as any;
-  const { error } = await typedDb
+  const { error } = await db
     .from("product_variants")
     .update({
       inventory_mode: "supplier",
