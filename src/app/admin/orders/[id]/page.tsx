@@ -20,16 +20,15 @@ const SUPPLIER_STATUSES = [
 export default async function AdminOrderDetailPage({ params }: Props) {
   const { id } = await params;
   const { db } = await getAdminContext();
-  const typedDb = db as any;
 
   const [{ data: order }, { data: rawItems }] = await Promise.all([
     db.from("orders").select("*").eq("id", id).maybeSingle(),
-    typedDb.from("order_items").select("*").eq("order_id", id),
+    db.from("order_items").select("*").eq("order_id", id),
   ]);
 
   if (!order) notFound();
 
-  const items = (rawItems ?? []) as SupplierAwareOrderItem[];
+  const items = (rawItems ?? []) as unknown as SupplierAwareOrderItem[];
   const productIds = [...new Set(items.map((item) => item.product_id).filter((v): v is string => !!v))];
   const { data: rawVendors } = productIds.length
     ? await db.from("product_vendor_links").select("*").in("product_id", productIds)
