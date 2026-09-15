@@ -3,7 +3,13 @@
 import { useMemo, useState } from "react";
 import { useCart } from "@/lib/cart-context";
 import { formatCents, variantLabel } from "@/lib/format";
-import type { ProductWithRelations } from "@/lib/types";
+import {
+  isVariantSellable,
+  maxSellableQuantity,
+  supplierVerificationIsCurrent,
+  type ProductWithRelations,
+  type SupplierAwareVariant,
+} from "@/lib/types";
 
 export function ProductPurchasePanel({ product }: { product: ProductWithRelations }) {
   const { addItem, openCart } = useCart();
@@ -30,9 +36,6 @@ export function ProductPurchasePanel({ product }: { product: ProductWithRelation
     [product.variants, selectedSize, selectedColor]
   );
 
-  // A given size/color option is only offered if some active, in-stock
-  // variant exists for it given the other current selection — this is what
-  // "do not allow impossible variant combinations" means in the UI.
   function isSizeAvailable(size: string) {
     return product.variants.some(
       (v) => v.size === size && (colors.length === 0 || (v.color ?? null) === (selectedColor ?? null))
@@ -44,11 +47,13 @@ export function ProductPurchasePanel({ product }: { product: ProductWithRelation
     );
   }
 
-  const inStock = (selectedVariant?.inventory_quantity ?? 0) > 0;
+  const sellable = selectedVariant ? isVariantSellable(selectedVariant) : false;
+  const maxQuantity = selectedVariant ? maxSellableQuantity(selectedVariant) : 1;
+  const supplierManaged = product.variants.some((v) => v.inventory_mode === "supplier");
   const primaryImage = product.images.find((i) => i.is_primary) ?? product.images[0];
 
   function handleAddToCart() {
-    if (!selectedVariant || !inStock) return;
+    if (!selectedVariant || !sellable) return;
     addItem({
       variantId: selectedVariant.id,
       productId: product.id,
@@ -59,7 +64,7 @@ export function ProductPurchasePanel({ product }: { product: ProductWithRelation
       unitPriceCents: product.price_cents,
       quantity,
       imageUrl: primaryImage?.url ?? null,
-      maxQuantity: selectedVariant.inventory_quantity,
+      maxQuantity,
     });
     setJustAdded(true);
     openCart();
@@ -91,7 +96,10 @@ export function ProductPurchasePanel({ product }: { product: ProductWithRelation
                   key={color}
                   type="button"
                   disabled={!available}
-                  onClick={() => setSelectedColor(color)}
+                  onClick={() => {
+                    setSelectedColor(color);
+                    setQuantity(1);
+                  }}
                   aria-pressed={selectedColor === color}
                   className={`min-h-[44px] rounded-md border px-4 text-sm font-medium transition-colors ${
                     selectedColor === color
@@ -118,7 +126,10 @@ export function ProductPurchasePanel({ product }: { product: ProductWithRelation
                   key={size}
                   type="button"
                   disabled={!available}
-                  onClick={() => setSelectedSize(size)}
+                  onClick={() => {
+                    setSelectedSize(size);
+                    setQuantity(1);
+                  }}
                   aria-pressed={selectedSize === size}
                   className={`min-h-[44px] min-w-[44px] rounded-md border px-3 text-sm font-medium transition-colors ${
                     selectedSize === size
@@ -134,17 +145,7 @@ export function ProductPurchasePanel({ product }: { product: ProductWithRelation
         </fieldset>
       )}
 
-      <div>
-        <p className="text-sm font-medium">
-          {selectedVariant
-            ? inStock
-              ? selectedVariant.inventory_quantity <= 5
-                ? `Only ${selectedVariant.inventory_quantity} left`
-                : "In stock"
-              : "Out of stock in this size/color"
-            : "Select options"}
-        </p>
-      </div>
+      <AvailabilityMessage variant={selectedVariant} />
 
       <div className="flex items-stretch gap-3">
         <label className="flex items-center gap-2">
@@ -152,39 +153,91 @@ export function ProductPurchasePanel({ product }: { product: ProductWithRelation
           <select
             value={quantity}
             onChange={(e) => setQuantity(Number(e.target.value))}
-            disabled={!inStock}
+            disabled={!sellable}
             className="h-[52px] rounded-md border border-graphite-950/20 bg-offwhite px-3 text-sm"
           >
-            {Array.from({ length: Math.min(selectedVariant?.inventory_quantity ?? 1, 10) }, (_, i) => i + 1).map(
-              (n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              )
-            )}
+            {Array.from({ length: Math.max(1, maxQuantity) }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
           </select>
         </label>
         <button
           type="button"
           onClick={handleAddToCart}
-          disabled={!selectedVariant || !inStock}
+          disabled={!selectedVariant || !sellable}
           className="btn-violet flex-1"
         >
-          {justAdded ? "Added ✓" : inStock ? "Add to Cart" : "Sold Out"}
+          {justAdded ? "Added ✓" : sellable ? "Add to Cart" : unavailableButtonLabel(selectedVariant)}
         </button>
       </div>
 
       <div className="rounded-md border border-graphite-950/10 bg-graphite-950/[0.03] p-4 text-sm text-graphite-600">
         <p className="font-medium text-graphite-950">Shipping &amp; Returns</p>
-        <p className="mt-1">
-          Ships within 2 business days. Free shipping may apply above our threshold at checkout. Returns
-          accepted within 30 days — see our{" "}
-          <a href="/shipping-returns" className="underline">
-            Shipping &amp; Returns
-          </a>{" "}
-          page for details.
-        </p>
+        {supplierManaged ? (
+          <p className="mt-1">
+            Made to order through our production partner. Production typically takes about 8 business days before carrier transit and can vary with supplier availability. See our{" "}
+            <a href="/shipping-returns" className="underline">
+              Shipping &amp; Returns
+            </a>{" "}
+            page for details.
+          </p>
+        ) : (
+          <p className="mt-1">
+            Ships within 2 business days. Free shipping may apply above our threshold at checkout. Returns accepted within 30 days — see our{" "}
+            <a href="/shipping-returns" className="underline">
+              Shipping &amp; Returns
+            </a>{" "}
+            page for details.
+          </p>
+        )}
       </div>
     </div>
+  );
+}
+
+function unavailableButtonLabel(variant: SupplierAwareVariant | null) {
+  if (!variant) return "Select options";
+  if (variant.inventory_mode !== "supplier") return "Sold Out";
+  if (
+    variant.supplier_status === "unverified" ||
+    ((variant.supplier_status === "available" || variant.supplier_status === "low_stock") &&
+      !supplierVerificationIsCurrent(variant))
+  ) {
+    return "Availability check required";
+  }
+  return "Sold Out";
+}
+
+function AvailabilityMessage({ variant }: { variant: SupplierAwareVariant | null }) {
+  if (!variant) return <p className="text-sm font-medium">Select options</p>;
+
+  if (variant.inventory_mode === "supplier") {
+    const current = supplierVerificationIsCurrent(variant);
+    if (variant.supplier_status === "sold_out") {
+      return <p className="text-sm font-medium">Temporarily unavailable from our production partner.</p>;
+    }
+    if (variant.supplier_status === "low_stock" && current) {
+      return <p className="text-sm font-medium text-amber-700">Low supplier availability — order soon.</p>;
+    }
+    if (variant.supplier_status === "available" && current) {
+      return <p className="text-sm font-medium">Made to order • supplier availability verified.</p>;
+    }
+    return (
+      <p className="text-sm font-medium text-careblue-700">
+        Availability is being verified with our production partner.
+      </p>
+    );
+  }
+
+  return (
+    <p className="text-sm font-medium">
+      {variant.inventory_quantity > 0
+        ? variant.inventory_quantity <= 5
+          ? `Only ${variant.inventory_quantity} left`
+          : "In stock"
+        : "Out of stock in this size/color"}
+    </p>
   );
 }
