@@ -37,7 +37,7 @@ export default function AdminForgotPasswordPage() {
       <div className="w-full max-w-sm rounded-lg bg-offwhite p-8">
         <h1 className="font-display text-xl font-bold tracking-tight">Reset admin password</h1>
         <p className="mt-2 text-sm text-graphite-600">
-          Enter the email address for your AirCareCrew.shop admin account. We'll email you a secure reset link.
+          Enter the email address for your AirCareCrew.shop admin account. We’ll email you a secure reset link.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
