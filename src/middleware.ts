@@ -12,8 +12,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Let the login page itself render without a redirect loop.
-  if (request.nextUrl.pathname === "/admin/login") {
+  // Authentication entry points must remain public. The actual reset-password
+  // page is intentionally NOT exempt: the recovery callback must establish a
+  // valid admin session before a password can be changed.
+  if (
+    request.nextUrl.pathname === "/admin/login" ||
+    request.nextUrl.pathname === "/admin/forgot-password"
+  ) {
     return NextResponse.next();
   }
 
