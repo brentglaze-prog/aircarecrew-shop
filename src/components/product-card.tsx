@@ -1,18 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { formatCents } from "@/lib/format";
-import { isSoldOut, type ProductCardData } from "@/lib/types";
+import { productAvailability, type ProductCardData } from "@/lib/types";
 
 export function ProductCard({ product }: { product: ProductCardData }) {
   const primaryImage = [...product.images].sort((a, b) => Number(b.is_primary) - Number(a.is_primary))[0];
-  const soldOut = isSoldOut(product.variants);
+  const availability = productAvailability(product.variants);
+  const unavailable = availability !== "available";
 
   return (
     <Link
       href={`/product/${product.slug}`}
       className="group block rounded-lg focus-visible:outline-offset-4"
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-graphite-100 bg-graphite-800/5">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-graphite-800/5">
         {primaryImage ? (
           <Image
             src={primaryImage.url}
@@ -26,12 +27,17 @@ export function ProductCard({ product }: { product: ProductCardData }) {
             No image yet
           </div>
         )}
-        {soldOut && (
+        {availability === "sold_out" && (
           <span className="absolute left-3 top-3 rounded bg-graphite-950 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-offwhite">
             Sold out
           </span>
         )}
-        {!soldOut && product.compare_at_price_cents && product.compare_at_price_cents > product.price_cents && (
+        {availability === "verification_required" && (
+          <span className="absolute left-3 top-3 rounded bg-careblue-700 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-offwhite">
+            Availability check
+          </span>
+        )}
+        {!unavailable && product.compare_at_price_cents && product.compare_at_price_cents > product.price_cents && (
           <span className="absolute left-3 top-3 rounded bg-violet-500 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-offwhite">
             Sale
           </span>
