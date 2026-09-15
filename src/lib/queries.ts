@@ -4,7 +4,14 @@ import type { Category, ProductCardData, ProductWithRelations, StoreSettings } f
 const PRODUCT_CARD_SELECT = `
   *,
   images:product_images ( url, alt_text, is_primary, display_order ),
-  variants:product_variants ( inventory_quantity, is_active )
+  variants:product_variants (
+    inventory_quantity,
+    is_active,
+    inventory_mode,
+    supplier_status,
+    supplier_verified_until,
+    max_order_quantity
+  )
 `;
 
 export async function getVisibleCategories(): Promise<Category[]> {

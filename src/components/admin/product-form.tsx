@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import type { Category, Product, ProductVariant } from "@/lib/types";
+import type { Category, Product, SupplierAwareVariant } from "@/lib/types";
 import type { FormState } from "@/app/admin/products/actions";
 
 type VariantRow = {
@@ -10,13 +10,24 @@ type VariantRow = {
   size: string;
   color: string;
   inventory_quantity: number;
+  inventory_mode: "owned" | "supplier";
   is_active: boolean;
   display_order: number;
 };
 
-function toRows(variants?: ProductVariant[]): VariantRow[] {
+function toRows(variants?: SupplierAwareVariant[]): VariantRow[] {
   if (!variants || variants.length === 0) {
-    return [{ sku: "", size: "", color: "", inventory_quantity: 0, is_active: true, display_order: 0 }];
+    return [
+      {
+        sku: "",
+        size: "",
+        color: "",
+        inventory_quantity: 0,
+        inventory_mode: "owned",
+        is_active: true,
+        display_order: 0,
+      },
+    ];
   }
   return variants.map((v) => ({
     id: v.id,
@@ -24,6 +35,7 @@ function toRows(variants?: ProductVariant[]): VariantRow[] {
     size: v.size ?? "",
     color: v.color ?? "",
     inventory_quantity: v.inventory_quantity,
+    inventory_mode: v.inventory_mode,
     is_active: v.is_active,
     display_order: v.display_order,
   }));
@@ -36,7 +48,7 @@ export function ProductForm({
   action,
 }: {
   product?: Product;
-  variants?: ProductVariant[];
+  variants?: SupplierAwareVariant[];
   categories: Category[];
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
 }) {
@@ -49,7 +61,15 @@ export function ProductForm({
   function addRow() {
     setRows((prev) => [
       ...prev,
-      { sku: "", size: "", color: "", inventory_quantity: 0, is_active: true, display_order: prev.length },
+      {
+        sku: "",
+        size: "",
+        color: "",
+        inventory_quantity: 0,
+        inventory_mode: "owned",
+        is_active: true,
+        display_order: prev.length,
+      },
     ]);
   }
   function removeRow(index: number) {
@@ -154,14 +174,20 @@ export function ProductForm({
                 onChange={(e) => updateRow(i, { color: e.target.value })}
                 className="admin-input"
               />
-              <input
-                type="number"
-                min={0}
-                placeholder="Stock"
-                value={row.inventory_quantity}
-                onChange={(e) => updateRow(i, { inventory_quantity: Number(e.target.value) })}
-                className="admin-input"
-              />
+              {row.inventory_mode === "supplier" ? (
+                <div className="flex min-h-[44px] items-center rounded-md border border-careblue-300 bg-careblue-200/40 px-3 text-xs font-semibold text-careblue-700">
+                  Supplier-managed
+                </div>
+              ) : (
+                <input
+                  type="number"
+                  min={0}
+                  placeholder="Stock"
+                  value={row.inventory_quantity}
+                  onChange={(e) => updateRow(i, { inventory_quantity: Number(e.target.value) })}
+                  className="admin-input"
+                />
+              )}
               <div className="flex items-center gap-2">
                 <label className="flex items-center gap-1 text-xs">
                   <input
