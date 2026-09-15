@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -11,9 +12,12 @@ export default function AdminLoginPage() {
   const [error, setError] = useState<string | null>(
     searchParams.get("error") === "not_admin"
       ? "That account doesn't have admin access. Contact the store owner."
-      : null
+      : searchParams.get("error") === "recovery_failed"
+        ? "That password-reset link is invalid or expired. Request a new one."
+        : null
   );
   const [loading, setLoading] = useState(false);
+  const resetSucceeded = searchParams.get("reset") === "success";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,6 +41,11 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-graphite-950 px-4">
       <div className="w-full max-w-sm rounded-lg bg-offwhite p-8">
         <h1 className="font-display text-xl font-bold tracking-tight">AirCareCrew.shop Admin</h1>
+        {resetSucceeded && (
+          <p className="mt-4 rounded-md bg-green-50 p-3 text-sm text-green-800">
+            Password updated. Sign in with your new password.
+          </p>
+        )}
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
           <label className="flex flex-col gap-1 text-sm font-medium">
             Email
@@ -60,6 +69,11 @@ export default function AdminLoginPage() {
               className="min-h-[44px] rounded-md border border-graphite-950/20 px-3"
             />
           </label>
+          <div className="-mt-2 text-right">
+            <Link href="/admin/forgot-password" className="text-sm font-medium text-violet-600 underline underline-offset-4">
+              Forgot password?
+            </Link>
+          </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button type="submit" disabled={loading} className="btn-primary mt-2">
             {loading ? "Signing in…" : "Sign in"}
