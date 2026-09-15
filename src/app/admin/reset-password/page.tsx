@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { createRecoveryClient } from "@/lib/supabase/recovery-client";
 
 export default function AdminResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -15,13 +15,29 @@ export default function AdminResetPasswordPage() {
     let cancelled = false;
 
     async function verifyAdminSession() {
-      const supabase = createClient();
+      const supabase = createRecoveryClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        if (!cancelled) {
+          setChecking(false);
+          setError("This recovery link is invalid or expired. Request a new password reset email.");
+        }
+        return;
+      }
+
       const {
         data: { user },
+        error: userError,
       } = await supabase.auth.getUser();
 
-      if (!user) {
-        window.location.href = "/admin/login?error=recovery_failed";
+      if (!user || userError) {
+        if (!cancelled) {
+          setChecking(false);
+          setError("We couldn't verify this recovery session. Request a new password reset email.");
+        }
         return;
       }
 
@@ -35,7 +51,8 @@ export default function AdminResetPasswordPage() {
 
       if (adminError || !adminRow) {
         await supabase.auth.signOut();
-        window.location.href = "/admin/login?error=not_admin";
+        setChecking(false);
+        setError("This account is not authorized for AirCareCrew.shop administration.");
         return;
       }
 
@@ -63,7 +80,7 @@ export default function AdminResetPasswordPage() {
     }
 
     setLoading(true);
-    const supabase = createClient();
+    const supabase = createRecoveryClient();
     const { error: updateError } = await supabase.auth.updateUser({ password });
 
     if (updateError) {
@@ -76,11 +93,25 @@ export default function AdminResetPasswordPage() {
     window.location.href = "/admin/login?reset=success";
   }
 
-  if (checking || !authorized) {
+  if (checking) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-graphite-950 px-4">
         <div className="w-full max-w-sm rounded-lg bg-offwhite p-8 text-sm text-graphite-600">
           Verifying your recovery session…
+        </div>
+      </div>
+    );
+  }
+
+  if (!authorized) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-graphite-950 px-4">
+        <div className="w-full max-w-sm rounded-lg bg-offwhite p-8">
+          <h1 className="font-display text-xl font-bold tracking-tight">Recovery link unavailable</h1>
+          <p className="mt-3 text-sm text-red-600">{error}</p>
+          <a href="/admin/forgot-password" className="mt-6 inline-block font-medium text-violet-600 underline underline-offset-4">
+            Request a new reset email
+          </a>
         </div>
       </div>
     );
