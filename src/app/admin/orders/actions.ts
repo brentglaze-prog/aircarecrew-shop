@@ -47,8 +47,7 @@ export async function updateSupplierFulfillment(formData: FormData) {
   }
 
   const { db } = await getAdminContext();
-  const typedDb = db as any;
-  const { data: existing } = await typedDb
+  const { data: existing } = await db
     .from("order_items")
     .select("id, order_id, supplier_ordered_at")
     .eq("id", itemId)
@@ -61,7 +60,7 @@ export async function updateSupplierFulfillment(formData: FormData) {
     ? existing.supplier_ordered_at ?? new Date().toISOString()
     : existing.supplier_ordered_at;
 
-  const { error } = await typedDb
+  const { error } = await db
     .from("order_items")
     .update({
       supplier_fulfillment_status: status,
@@ -75,7 +74,7 @@ export async function updateSupplierFulfillment(formData: FormData) {
   if (error) throw new Error("Could not update supplier fulfillment.");
 
   if (status === "shipped" && supplierTrackingNumber) {
-    const { data: pendingItems } = await typedDb
+    const { data: pendingItems } = await db
       .from("order_items")
       .select("id")
       .eq("order_id", orderId)
