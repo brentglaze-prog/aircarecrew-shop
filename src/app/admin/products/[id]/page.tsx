@@ -20,10 +20,9 @@ interface Props {
 export default async function EditProductPage({ params }: Props) {
   const { id } = await params;
   const { db } = await getAdminContext();
-  const typedDb = db as any;
 
   const [{ data: rawProduct }, { data: categories }, { data: vendor }] = await Promise.all([
-    typedDb
+    db
       .from("products")
       .select("*, variants:product_variants(*), images:product_images(*)")
       .eq("id", id)
@@ -34,7 +33,7 @@ export default async function EditProductPage({ params }: Props) {
 
   if (!rawProduct) notFound();
 
-  const product = rawProduct as Product & {
+  const product = rawProduct as unknown as Product & {
     variants: SupplierAwareVariant[];
     images: ProductImage[];
   };
