@@ -46,10 +46,9 @@ export async function POST(request: Request) {
   }
 
   const supabase = await createClient();
-  const db = supabase as any;
   const variantIds = parsed.data.items.map((i) => i.variantId);
 
-  const { data, error } = await db
+  const { data, error } = await supabase
     .from("product_variants")
     .select(
       `id, sku, size, color, inventory_quantity, inventory_mode, supplier_status,
@@ -65,7 +64,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 
-  const variants = (data ?? []) as CheckoutVariant[];
+  const variants = (data ?? []) as unknown as CheckoutVariant[];
   const foundIds = new Set(variants.map((v) => v.id));
   const missing = variantIds.filter((id) => !foundIds.has(id));
   if (missing.length > 0) {
