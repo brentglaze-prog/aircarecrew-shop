@@ -45,8 +45,7 @@ export async function getActiveProducts(options?: {
   limit?: number;
 }): Promise<ProductCardData[]> {
   const supabase = await createClient();
-  const db = supabase as any;
-  let query = db
+  let query = supabase
     .from("products")
     .select(PRODUCT_CARD_SELECT)
     .eq("status", "active")
@@ -61,13 +60,12 @@ export async function getActiveProducts(options?: {
     console.error("getActiveProducts failed", error);
     return [];
   }
-  return (data ?? []) as ProductCardData[];
+  return (data ?? []) as unknown as ProductCardData[];
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductWithRelations | null> {
   const supabase = await createClient();
-  const db = supabase as any;
-  const { data, error } = await db
+  const { data, error } = await supabase
     .from("products")
     .select(
       `*,
@@ -85,7 +83,7 @@ export async function getProductBySlug(slug: string): Promise<ProductWithRelatio
   }
   if (!data) return null;
 
-  const product = data as ProductWithRelations;
+  const product = data as unknown as ProductWithRelations;
   product.images = [...product.images].sort((a, b) => a.display_order - b.display_order);
   product.variants = [...product.variants]
     .filter((v) => v.is_active)
