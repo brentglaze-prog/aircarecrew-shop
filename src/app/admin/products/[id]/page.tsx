@@ -2,9 +2,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ProductForm } from "@/components/admin/product-form";
 import { ProductImagesManager } from "@/components/admin/product-images-manager";
+import { VendorSourceForm } from "@/components/admin/vendor-source-form";
 import { updateProduct } from "@/app/admin/products/actions";
 import { getAdminContext } from "@/lib/admin-context";
-import type { Product, ProductImage, ProductVariant } from "@/lib/types";
+import type { Product, ProductImage, ProductVariant, ProductVendorLink } from "@/lib/types";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -14,13 +15,14 @@ export default async function EditProductPage({ params }: Props) {
   const { id } = await params;
   const { db } = await getAdminContext();
 
-  const [{ data: rawProduct }, { data: categories }] = await Promise.all([
+  const [{ data: rawProduct }, { data: categories }, { data: vendor }] = await Promise.all([
     db
       .from("products")
       .select("*, variants:product_variants(*), images:product_images(*)")
       .eq("id", id)
       .maybeSingle(),
     db.from("categories").select("*").order("display_order"),
+    db.from("product_vendor_links").select("*").eq("product_id", id).maybeSingle(),
   ]);
 
   if (!rawProduct) notFound();
@@ -42,9 +44,19 @@ export default async function EditProductPage({ params }: Props) {
       </div>
 
       <section className="mt-8">
-        <h2 className="font-display text-lg font-semibold">Images</h2>
+        <h2 className="font-display text-lg font-semibold">Product renders &amp; images</h2>
+        <p className="mt-1 text-sm text-graphite-600">
+          Upload vendor mockups, clean product renders, detail shots, or lifestyle images. Set the strongest render as Primary.
+        </p>
         <div className="mt-3">
           <ProductImagesManager productId={product.id} images={product.images ?? []} />
+        </div>
+      </section>
+
+      <section className="mt-10 border-t border-graphite-950/10 pt-8">
+        <h2 className="font-display text-lg font-semibold">Sourcing</h2>
+        <div className="mt-3">
+          <VendorSourceForm productId={product.id} vendor={(vendor as ProductVendorLink | null) ?? null} />
         </div>
       </section>
 

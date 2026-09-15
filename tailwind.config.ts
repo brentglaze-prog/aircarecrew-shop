@@ -13,17 +13,28 @@ const config: Config = {
           600: "#3a3f4b",
         },
         navy: {
-          950: "#050a14",
-          900: "#0a1628",
-          800: "#0f2244",
-          700: "#163363",
+          950: "#071624",
+          900: "#0b2235",
+          800: "#103149",
+          700: "#174862",
         },
-        offwhite: "#f6f4ef",
+        offwhite: "#f7f8fa",
+        // Wellstar-adjacent palette: purple + cool blue, without presenting
+        // AirCareCrew.shop as an official Wellstar property or using their marks.
         violet: {
-          500: "#4e3b78",
-          400: "#6b58a0",
-          300: "#c9bfe8",
-          200: "#e3ddf5",
+          600: "#58277f",
+          500: "#6d3296",
+          400: "#8246af",
+          300: "#cdb3de",
+          200: "#e9ddf1",
+        },
+        careblue: {
+          700: "#006b8f",
+          600: "#007fa8",
+          500: "#00a6d6",
+          400: "#38b8df",
+          300: "#98ddef",
+          200: "#d9f2f9",
         },
       },
       fontFamily: {

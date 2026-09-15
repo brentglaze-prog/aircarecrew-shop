@@ -16,7 +16,7 @@ export function SiteHeader({
   const { itemCount, openCart } = useCart();
 
   return (
-    <div className="sticky top-0 z-40 bg-graphite-950 text-offwhite">
+    <div className="sticky top-0 z-40 border-b border-careblue-500/25 bg-graphite-950 text-offwhite">
       {settings?.announcement_bar_enabled && settings.announcement_bar_text ? (
         <div className="bg-violet-500 px-4 py-2 text-center text-xs font-semibold tracking-wide text-offwhite">
           {settings.announcement_bar_text}
@@ -47,19 +47,19 @@ export function SiteHeader({
 
         <Link href="/" className="font-display text-lg font-bold tracking-tight">
           AirCare<span className="text-violet-300">Crew</span>
-          <span className="text-graphite-600">.shop</span>
+          <span className="text-careblue-300">.shop</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Main">
-          <Link href="/shop" className="text-sm font-medium hover:text-violet-200">
+          <Link href="/shop" className="text-sm font-medium hover:text-careblue-300">
             All Products
           </Link>
           {categories.map((c) => (
-            <Link key={c.id} href={`/shop/${c.slug}`} className="text-sm font-medium hover:text-violet-200">
+            <Link key={c.id} href={`/shop/${c.slug}`} className="text-sm font-medium hover:text-careblue-300">
               {c.name}
             </Link>
           ))}
-          <Link href="/about" className="text-sm font-medium hover:text-violet-200">
+          <Link href="/about" className="text-sm font-medium hover:text-careblue-300">
             About
           </Link>
         </nav>
@@ -67,7 +67,7 @@ export function SiteHeader({
         <button
           type="button"
           onClick={openCart}
-          className="relative flex h-11 min-w-[44px] items-center justify-center rounded-md px-2"
+          className="relative flex h-11 min-w-[44px] items-center justify-center rounded-md px-2 hover:text-careblue-300"
           aria-label={`Cart, ${itemCount} item${itemCount === 1 ? "" : "s"}`}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -96,7 +96,7 @@ export function SiteHeader({
         >
           <Link
             href="/shop"
-            className="min-h-[44px] rounded-md px-2 py-3 text-base font-medium"
+            className="min-h-[44px] rounded-md px-2 py-3 text-base font-medium hover:text-careblue-300"
             onClick={() => setMenuOpen(false)}
           >
             All Products
@@ -105,7 +105,7 @@ export function SiteHeader({
             <Link
               key={c.id}
               href={`/shop/${c.slug}`}
-              className="min-h-[44px] rounded-md px-2 py-3 text-base font-medium"
+              className="min-h-[44px] rounded-md px-2 py-3 text-base font-medium hover:text-careblue-300"
               onClick={() => setMenuOpen(false)}
             >
               {c.name}
@@ -113,14 +113,14 @@ export function SiteHeader({
           ))}
           <Link
             href="/about"
-            className="min-h-[44px] rounded-md px-2 py-3 text-base font-medium"
+            className="min-h-[44px] rounded-md px-2 py-3 text-base font-medium hover:text-careblue-300"
             onClick={() => setMenuOpen(false)}
           >
             About
           </Link>
           <Link
             href="/contact"
-            className="min-h-[44px] rounded-md px-2 py-3 text-base font-medium"
+            className="min-h-[44px] rounded-md px-2 py-3 text-base font-medium hover:text-careblue-300"
             onClick={() => setMenuOpen(false)}
           >
             Contact
