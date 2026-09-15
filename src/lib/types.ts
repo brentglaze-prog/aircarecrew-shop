@@ -4,6 +4,7 @@ export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type Product = Database["public"]["Tables"]["products"]["Row"];
 export type ProductImage = Database["public"]["Tables"]["product_images"]["Row"];
 export type ProductVariant = Database["public"]["Tables"]["product_variants"]["Row"];
+export type ProductVendorLink = Database["public"]["Tables"]["product_vendor_links"]["Row"];
 export type StoreSettings = Database["public"]["Tables"]["store_settings"]["Row"];
 export type Order = Database["public"]["Tables"]["orders"]["Row"];
 export type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
