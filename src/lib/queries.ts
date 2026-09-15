@@ -4,7 +4,14 @@ import type { Category, ProductCardData, ProductWithRelations, StoreSettings } f
 const PRODUCT_CARD_SELECT = `
   *,
   images:product_images ( url, alt_text, is_primary, display_order ),
-  variants:product_variants ( inventory_quantity, is_active )
+  variants:product_variants (
+    inventory_quantity,
+    is_active,
+    inventory_mode,
+    supplier_status,
+    supplier_verified_until,
+    max_order_quantity
+  )
 `;
 
 export async function getVisibleCategories(): Promise<Category[]> {
@@ -38,7 +45,8 @@ export async function getActiveProducts(options?: {
   limit?: number;
 }): Promise<ProductCardData[]> {
   const supabase = await createClient();
-  let query = supabase
+  const db = supabase as any;
+  let query = db
     .from("products")
     .select(PRODUCT_CARD_SELECT)
     .eq("status", "active")
@@ -53,12 +61,13 @@ export async function getActiveProducts(options?: {
     console.error("getActiveProducts failed", error);
     return [];
   }
-  return (data ?? []) as unknown as ProductCardData[];
+  return (data ?? []) as ProductCardData[];
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductWithRelations | null> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const db = supabase as any;
+  const { data, error } = await db
     .from("products")
     .select(
       `*,
@@ -76,7 +85,7 @@ export async function getProductBySlug(slug: string): Promise<ProductWithRelatio
   }
   if (!data) return null;
 
-  const product = data as unknown as ProductWithRelations;
+  const product = data as ProductWithRelations;
   product.images = [...product.images].sort((a, b) => a.display_order - b.display_order);
   product.variants = [...product.variants]
     .filter((v) => v.is_active)
