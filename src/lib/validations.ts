@@ -35,6 +35,7 @@ export const productSchema = z.object({
   status: z.enum(["draft", "active", "archived"]),
   is_featured: z.boolean().default(false),
   display_order: z.coerce.number().int().default(0),
+  vendor_url: z.string().url("Enter a complete vendor URL, including https://").max(2000).optional().nullable(),
   seo_title: z.string().max(160).optional().nullable(),
   seo_description: z.string().max(300).optional().nullable(),
   variants: z.array(variantInputSchema).min(1, "At least one variant (use no size/color for a simple product)"),
