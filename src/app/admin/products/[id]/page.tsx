@@ -3,9 +3,15 @@ import Link from "next/link";
 import { ProductForm } from "@/components/admin/product-form";
 import { ProductImagesManager } from "@/components/admin/product-images-manager";
 import { VendorSourceForm } from "@/components/admin/vendor-source-form";
+import { SupplierAvailabilityPanel } from "@/components/admin/supplier-availability-panel";
 import { updateProduct } from "@/app/admin/products/actions";
 import { getAdminContext } from "@/lib/admin-context";
-import type { Product, ProductImage, ProductVariant, ProductVendorLink } from "@/lib/types";
+import type {
+  Product,
+  ProductImage,
+  ProductVendorLink,
+  SupplierAwareVariant,
+} from "@/lib/types";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -14,9 +20,10 @@ interface Props {
 export default async function EditProductPage({ params }: Props) {
   const { id } = await params;
   const { db } = await getAdminContext();
+  const typedDb = db as any;
 
   const [{ data: rawProduct }, { data: categories }, { data: vendor }] = await Promise.all([
-    db
+    typedDb
       .from("products")
       .select("*, variants:product_variants(*), images:product_images(*)")
       .eq("id", id)
@@ -27,11 +34,11 @@ export default async function EditProductPage({ params }: Props) {
 
   if (!rawProduct) notFound();
 
-  const product = rawProduct as unknown as Product & {
-    variants: ProductVariant[];
+  const product = rawProduct as Product & {
+    variants: SupplierAwareVariant[];
     images: ProductImage[];
   };
-
+  const vendorSource = (vendor as ProductVendorLink | null) ?? null;
   const boundAction = updateProduct.bind(null, id);
 
   return (
@@ -55,8 +62,13 @@ export default async function EditProductPage({ params }: Props) {
 
       <section className="mt-10 border-t border-graphite-950/10 pt-8">
         <h2 className="font-display text-lg font-semibold">Sourcing</h2>
-        <div className="mt-3">
-          <VendorSourceForm productId={product.id} vendor={(vendor as ProductVendorLink | null) ?? null} />
+        <div className="mt-3 space-y-4">
+          <VendorSourceForm productId={product.id} vendor={vendorSource} />
+          <SupplierAvailabilityPanel
+            productId={product.id}
+            variants={product.variants ?? []}
+            vendorUrl={vendorSource?.vendor_product_url}
+          />
         </div>
       </section>
 
