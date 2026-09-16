@@ -14,23 +14,30 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aircarecrew.shop";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "AirCareCrew.shop — Gear for the Crew",
+    default: "AirCareCrew.shop",
     template: "%s | AirCareCrew.shop",
   },
-  description:
-    "Independently operated crew merchandise for air medical and HEMS crewmembers. Shirts and hats built for the job.",
+  description: "Gear for the Crew. Independent apparel and gear for air medical and HEMS crews.",
   openGraph: {
     type: "website",
+    url: siteUrl,
     siteName: "AirCareCrew.shop",
-    title: "AirCareCrew.shop — Gear for the Crew",
-    description:
-      "Independently operated crew merchandise for air medical and HEMS crewmembers. Shirts and hats built for the job.",
-    images: ["/og-image.png"],
+    title: "AirCareCrew.shop",
+    description: "Gear for the Crew. Independent apparel and gear for air medical and HEMS crews.",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "AirCareCrew.shop — Gear for the Crew",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "AirCareCrew.shop — Gear for the Crew",
-    description: "Crew merchandise for air medical and HEMS crewmembers.",
+    title: "AirCareCrew.shop",
+    description: "Gear for the Crew. Independent apparel and gear for air medical and HEMS crews.",
+    images: ["/opengraph-image"],
   },
   icons: {
     icon: [
