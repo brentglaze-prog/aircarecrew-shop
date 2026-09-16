@@ -13,14 +13,15 @@ export function ProductCard({ product }: { product: ProductCardData }) {
       href={`/product/${product.slug}`}
       className="group block rounded-lg focus-visible:outline-offset-4"
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-graphite-800/5">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-offwhite">
         {primaryImage ? (
           <Image
             src={primaryImage.url}
             alt={primaryImage.alt_text ?? product.name}
             fill
-            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            quality={90}
+            sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+            className="object-contain p-3 transition-transform duration-300 group-hover:scale-[1.02]"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-graphite-600">
