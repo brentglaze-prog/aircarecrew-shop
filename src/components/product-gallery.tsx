@@ -31,7 +31,7 @@ export function ProductGallery({
           alt={active.alt_text ?? productName}
           fill
           priority
-          quality={90}
+          unoptimized
           sizes="(min-width: 1280px) 42vw, (min-width: 1024px) 50vw, 100vw"
           className="object-contain p-4"
         />
@@ -49,7 +49,7 @@ export function ProductGallery({
                 i === activeIndex ? "border-graphite-950" : "border-transparent"
               }`}
             >
-              <Image src={img.url} alt="" fill quality={90} sizes="64px" className="object-contain p-1" />
+              <Image src={img.url} alt="" fill unoptimized sizes="64px" className="object-contain p-1" />
             </button>
           ))}
         </div>

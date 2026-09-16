@@ -19,7 +19,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
             src={primaryImage.url}
             alt={primaryImage.alt_text ?? product.name}
             fill
-            quality={90}
+            unoptimized
             sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
             className="object-contain p-3 transition-transform duration-300 group-hover:scale-[1.02]"
           />
