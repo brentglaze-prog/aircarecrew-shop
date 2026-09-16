@@ -15,7 +15,7 @@ export function ProductGallery({
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-square items-center justify-center rounded-lg bg-graphite-800/5 text-graphite-600">
+      <div className="flex aspect-[4/5] items-center justify-center rounded-lg bg-offwhite text-graphite-600">
         No image yet
       </div>
     );
@@ -25,14 +25,15 @@ export function ProductGallery({
 
   return (
     <div>
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-graphite-800/5">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-offwhite">
         <Image
           src={active.url}
           alt={active.alt_text ?? productName}
           fill
           priority
-          sizes="(min-width: 1024px) 50vw, 100vw"
-          className="object-cover"
+          quality={90}
+          sizes="(min-width: 1280px) 42vw, (min-width: 1024px) 50vw, 100vw"
+          className="object-contain p-4"
         />
       </div>
       {images.length > 1 && (
@@ -44,11 +45,11 @@ export function ProductGallery({
               onClick={() => setActiveIndex(i)}
               aria-label={`Show image ${i + 1} of ${images.length}`}
               aria-current={i === activeIndex}
-              className={`relative h-16 w-16 flex-shrink-0 overflow-hidden rounded border-2 ${
+              className={`relative h-16 w-16 flex-shrink-0 overflow-hidden rounded border-2 bg-offwhite ${
                 i === activeIndex ? "border-graphite-950" : "border-transparent"
               }`}
             >
-              <Image src={img.url} alt="" fill sizes="64px" className="object-cover" />
+              <Image src={img.url} alt="" fill quality={90} sizes="64px" className="object-contain p-1" />
             </button>
           ))}
         </div>
