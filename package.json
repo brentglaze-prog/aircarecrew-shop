@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "tsx scripts/update-aircare-pom-pom-beanie.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
