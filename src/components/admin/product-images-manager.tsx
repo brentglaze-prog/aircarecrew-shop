@@ -57,9 +57,7 @@ export function ProductImagesManager({ productId, images }: { productId: string;
 
         const { error: uploadError } = await supabase.storage
           .from("product-images")
-          .uploadToSignedUrl(ticket.path, ticket.token, file, {
-            contentType: file.type,
-          });
+          .uploadToSignedUrl(ticket.path, ticket.token, file);
 
         if (uploadError) {
           setError(`${file.name}: Upload failed — ${uploadError.message}`);
