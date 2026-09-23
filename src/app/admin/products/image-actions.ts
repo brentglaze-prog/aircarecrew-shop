@@ -5,56 +5,142 @@ import { getAdminContext } from "@/lib/admin-context";
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
 const MAX_BYTES = 8 * 1024 * 1024;
+const EXTENSIONS: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/avif": "avif",
+};
 
-export async function uploadProductImage(productId: string, formData: FormData) {
-  const { db } = await getAdminContext();
+type UploadTicket =
+  | { ok: true; path: string; token: string }
+  | { ok: false; error: string };
 
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) {
-    throw new Error("No file provided.");
+type UploadResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
+export async function createProductImageUploadUrl(
+  productId: string,
+  fileName: string,
+  fileType: string,
+  fileSize: number
+): Promise<UploadTicket> {
+  if (!fileName || !ALLOWED_TYPES.has(fileType)) {
+    return { ok: false, error: "Only JPEG, PNG, WebP, or AVIF images are allowed." };
   }
-  if (!ALLOWED_TYPES.has(file.type)) {
-    throw new Error("Only JPEG, PNG, WebP, or AVIF images are allowed.");
+  if (!Number.isFinite(fileSize) || fileSize <= 0) {
+    return { ok: false, error: "The selected image is empty or invalid." };
   }
-  if (file.size > MAX_BYTES) {
-    throw new Error("Image is larger than the 8 MB limit.");
+  if (fileSize > MAX_BYTES) {
+    return { ok: false, error: "Image is larger than the 8 MB limit." };
   }
 
-  const ext = file.name.split(".").pop() || "jpg";
-  const path = `${productId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  try {
+    const { db } = await getAdminContext();
 
-  const { error: uploadError } = await db.storage.from("product-images").upload(path, file, {
-    contentType: file.type,
-    upsert: false,
-  });
-  if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`);
+    const { data: product } = await db
+      .from("products")
+      .select("id")
+      .eq("id", productId)
+      .maybeSingle();
 
-  const {
-    data: { publicUrl },
-  } = db.storage.from("product-images").getPublicUrl(path);
+    if (!product) {
+      return { ok: false, error: "Product not found." };
+    }
 
-  const { count } = await db
-    .from("product_images")
-    .select("id", { count: "exact", head: true })
-    .eq("product_id", productId);
-  const isFirst = !count || count === 0;
+    const ext = EXTENSIONS[fileType];
+    const path = `${productId}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
 
-  const { error: insertError } = await db.from("product_images").insert({
-    product_id: productId,
-    url: publicUrl,
-    alt_text: null,
-    display_order: count ?? 0,
-    is_primary: isFirst,
-  });
-  if (insertError) throw new Error("Could not save image record.");
+    const { data, error } = await db.storage
+      .from("product-images")
+      .createSignedUploadUrl(path);
 
-  revalidatePath(`/admin/products/${productId}`);
+    if (error || !data?.token) {
+      return {
+        ok: false,
+        error: error?.message ? `Could not prepare upload: ${error.message}` : "Could not prepare image upload.",
+      };
+    }
+
+    return { ok: true, path, token: data.token };
+  } catch {
+    return { ok: false, error: "Could not prepare image upload. Please refresh and try again." };
+  }
+}
+
+export async function finalizeProductImageUpload(
+  productId: string,
+  path: string
+): Promise<UploadResult> {
+  if (!path.startsWith(`${productId}/`)) {
+    return { ok: false, error: "Invalid product image path." };
+  }
+
+  try {
+    const { db } = await getAdminContext();
+
+    const {
+      data: { publicUrl },
+    } = db.storage.from("product-images").getPublicUrl(path);
+
+    const { count, error: countError } = await db
+      .from("product_images")
+      .select("id", { count: "exact", head: true })
+      .eq("product_id", productId);
+
+    if (countError) {
+      await db.storage.from("product-images").remove([path]);
+      return { ok: false, error: "Image uploaded, but the catalog could not be updated." };
+    }
+
+    const isFirst = !count || count === 0;
+    const { error: insertError } = await db.from("product_images").insert({
+      product_id: productId,
+      url: publicUrl,
+      alt_text: null,
+      display_order: count ?? 0,
+      is_primary: isFirst,
+    });
+
+    if (insertError) {
+      await db.storage.from("product-images").remove([path]);
+      return { ok: false, error: "Image uploaded, but the catalog could not be updated." };
+    }
+
+    revalidatePath(`/admin/products/${productId}`);
+    revalidatePath(`/product`, "layout");
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Could not finish saving the product image." };
+  }
 }
 
 export async function deleteProductImage(imageId: string, productId: string) {
   const { db } = await getAdminContext();
-  await db.from("product_images").delete().eq("id", imageId);
+
+  const { data: image } = await db
+    .from("product_images")
+    .select("url")
+    .eq("id", imageId)
+    .eq("product_id", productId)
+    .maybeSingle();
+
+  await db.from("product_images").delete().eq("id", imageId).eq("product_id", productId);
+
+  if (image?.url) {
+    const marker = "/storage/v1/object/public/product-images/";
+    const index = image.url.indexOf(marker);
+    if (index !== -1) {
+      const objectPath = decodeURIComponent(image.url.slice(index + marker.length));
+      if (objectPath.startsWith(`${productId}/`)) {
+        await db.storage.from("product-images").remove([objectPath]);
+      }
+    }
+  }
+
   revalidatePath(`/admin/products/${productId}`);
+  revalidatePath(`/product`, "layout");
 }
 
 export async function setPrimaryImage(imageId: string, productId: string) {
@@ -62,6 +148,7 @@ export async function setPrimaryImage(imageId: string, productId: string) {
   await db.from("product_images").update({ is_primary: false }).eq("product_id", productId);
   await db.from("product_images").update({ is_primary: true }).eq("id", imageId);
   revalidatePath(`/admin/products/${productId}`);
+  revalidatePath(`/product`, "layout");
 }
 
 export async function moveImage(imageId: string, productId: string, direction: "up" | "down") {
