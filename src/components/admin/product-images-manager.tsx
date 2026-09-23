@@ -1,38 +1,88 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import type { ProductImage } from "@/lib/types";
+import { createClient } from "@/lib/supabase/client";
 import {
+  createProductImageUploadUrl,
   deleteProductImage,
+  finalizeProductImageUpload,
   moveImage,
   setPrimaryImage,
-  uploadProductImage,
 } from "@/app/admin/products/image-actions";
 
+const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+const MAX_BYTES = 8 * 1024 * 1024;
+
 export function ProductImagesManager({ productId, images }: { productId: string; images: ProductImage[] }) {
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-    setError(null);
 
-    for (const file of Array.from(files)) {
-      const formData = new FormData();
-      formData.append("file", file);
-      try {
-        await uploadProductImage(productId, formData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Upload failed.");
+    setError(null);
+    setUploading(true);
+
+    try {
+      const supabase = createClient();
+
+      for (const file of Array.from(files)) {
+        if (!ALLOWED_TYPES.has(file.type)) {
+          setError(`${file.name}: Only JPEG, PNG, WebP, or AVIF images are allowed.`);
+          continue;
+        }
+        if (file.size > MAX_BYTES) {
+          setError(`${file.name}: Image is larger than the 8 MB limit.`);
+          continue;
+        }
+
+        const ticket = await createProductImageUploadUrl(
+          productId,
+          file.name,
+          file.type,
+          file.size
+        );
+
+        if (!ticket.ok) {
+          setError(`${file.name}: ${ticket.error}`);
+          continue;
+        }
+
+        const { error: uploadError } = await supabase.storage
+          .from("product-images")
+          .uploadToSignedUrl(ticket.path, ticket.token, file, {
+            contentType: file.type,
+          });
+
+        if (uploadError) {
+          setError(`${file.name}: Upload failed — ${uploadError.message}`);
+          continue;
+        }
+
+        const result = await finalizeProductImageUpload(productId, ticket.path);
+        if (!result.ok) {
+          setError(`${file.name}: ${result.error}`);
+        }
       }
+
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
-    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   const sorted = [...images].sort((a, b) => a.display_order - b.display_order);
+  const busy = pending || uploading;
 
   return (
     <div>
@@ -52,14 +102,14 @@ export function ProductImagesManager({ productId, images }: { productId: string;
             <div className="mt-2 flex flex-wrap items-center justify-between gap-1 text-xs">
               <div className="flex gap-1">
                 <button
-                  disabled={i === 0 || pending}
+                  disabled={i === 0 || busy}
                   onClick={() => startTransition(() => moveImage(img.id, productId, "up"))}
                   className="underline disabled:opacity-30"
                 >
                   ↑
                 </button>
                 <button
-                  disabled={i === sorted.length - 1 || pending}
+                  disabled={i === sorted.length - 1 || busy}
                   onClick={() => startTransition(() => moveImage(img.id, productId, "down"))}
                   className="underline disabled:opacity-30"
                 >
@@ -68,17 +118,17 @@ export function ProductImagesManager({ productId, images }: { productId: string;
               </div>
               {!img.is_primary && (
                 <button
-                  disabled={pending}
+                  disabled={busy}
                   onClick={() => startTransition(() => setPrimaryImage(img.id, productId))}
-                  className="underline"
+                  className="underline disabled:opacity-30"
                 >
                   Make primary
                 </button>
               )}
               <button
-                disabled={pending}
+                disabled={busy}
                 onClick={() => startTransition(() => deleteProductImage(img.id, productId))}
-                className="text-red-600 underline"
+                className="text-red-600 underline disabled:opacity-30"
               >
                 Delete
               </button>
@@ -87,18 +137,21 @@ export function ProductImagesManager({ productId, images }: { productId: string;
         ))}
       </div>
 
-      <label className="btn-secondary mt-4 inline-flex cursor-pointer">
-        Upload image(s)
+      <label className={`btn-secondary mt-4 inline-flex ${busy ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
+        {uploading ? "Uploading…" : "Upload image(s)"}
         <input
           ref={fileInputRef}
           type="file"
           accept="image/jpeg,image/png,image/webp,image/avif"
           multiple
+          disabled={busy}
           className="sr-only"
           onChange={handleFileChange}
         />
       </label>
-      <p className="mt-1 text-xs text-graphite-600">JPEG, PNG, WebP, or AVIF. Max 8 MB each.</p>
+      <p className="mt-1 text-xs text-graphite-600">
+        JPEG, PNG, WebP, or AVIF. Max 8 MB each. Images upload directly to secure storage.
+      </p>
     </div>
   );
 }
