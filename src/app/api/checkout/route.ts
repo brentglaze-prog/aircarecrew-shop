@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, hasLiveStripeCredentials, isProductionDeployment } from "@/lib/stripe";
 import { checkoutRequestSchema } from "@/lib/validations";
 import { generateOrderNumber } from "@/lib/order-number";
 import { variantLabel } from "@/lib/format";
@@ -33,6 +33,15 @@ function supplierVerificationCurrent(v: CheckoutVariant) {
  * are re-read server-side immediately before Stripe Checkout is created.
  */
 export async function POST(request: Request) {
+  // Fail closed: a real customer must never be redirected to Stripe test mode.
+  if (isProductionDeployment() && !hasLiveStripeCredentials()) {
+    console.error("checkout: production Stripe live-mode keys are not configured");
+    return NextResponse.json(
+      { error: "Checkout is temporarily unavailable. Please contact the store before placing an order." },
+      { status: 503 }
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();
