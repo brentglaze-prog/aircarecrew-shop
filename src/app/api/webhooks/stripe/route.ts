@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, isProductionDeployment } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/database.types";
 
@@ -36,6 +36,12 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("webhook: signature verification failed", err);
     return NextResponse.json({ error: "Invalid signature." }, { status: 400 });
+  }
+
+  // Test-mode events must never create paid production orders.
+  if (isProductionDeployment() && !event.livemode) {
+    console.warn("webhook: ignored Stripe test-mode event in production");
+    return NextResponse.json({ received: true, ignored: "test_mode" });
   }
 
   try {
