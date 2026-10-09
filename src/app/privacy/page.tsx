@@ -23,8 +23,9 @@ export default function PrivacyPage() {
           our servers.
         </p>
         <p>
-          We use your email to send order confirmations and, if needed, to contact you about your
-          order. We do not sell your personal information.
+          We provide your email to Stripe so it can send your payment receipt, which serves as your
+          AirCare Crew Shop order confirmation. We may also use your email, if needed, to contact you
+          about your order. We do not sell your personal information.
         </p>
         <p>
           We use privacy-conscious analytics to understand site usage in aggregate. We do not use

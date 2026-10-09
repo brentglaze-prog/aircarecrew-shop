@@ -39,7 +39,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
   const message = {
     paid: {
       title: "Payment received",
-      description: "Your payment has been verified. We are processing your order. Please retain your Stripe payment receipt.",
+      description: "Your payment has been verified and your order is being processed. Your Stripe payment receipt is your official AirCare Crew Shop order confirmation.",
     },
     pending: {
       title: "Payment not yet confirmed",
